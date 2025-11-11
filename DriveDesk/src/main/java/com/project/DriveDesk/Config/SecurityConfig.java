@@ -1,10 +1,10 @@
 package com.project.DriveDesk.Config;
 
-
 import com.project.DriveDesk.service.UserDetailsServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
@@ -72,24 +72,39 @@ public class SecurityConfig {
                         // Admin registers teachers/students
                         .requestMatchers("/api/auth/register").hasRole("ADMIN")
 
-                        // JD endpoints restricted to TEACHER
+                        // 🔹 JD endpoints
+                        // Teachers can manage their job alerts
                         .requestMatchers("/api/jd/create").hasRole("TEACHER")
                         .requestMatchers("/api/jd/update/**").hasRole("TEACHER")
                         .requestMatchers("/api/jd/delete/**").hasRole("TEACHER")
                         .requestMatchers("/api/jd/teacher").hasRole("TEACHER")
+
+                        // Students can view job alerts (public/student dashboard)
+                        .requestMatchers(HttpMethod.GET, "/api/jd/student").hasAnyRole("STUDENT", "TEACHER", "ADMIN")
+
+                        // Questions API
+                        .requestMatchers(HttpMethod.POST, "/api/questions").hasRole("TEACHER")
+                        .requestMatchers(HttpMethod.GET, "/api/questions").permitAll()
+
+                        // Interest endpoints
                         .requestMatchers("/api/interest/register").hasRole("STUDENT")
                         .requestMatchers("/api/interest/student").hasRole("STUDENT")
-                        .requestMatchers("/api/interest/jd/**").hasAnyRole("STUDENT", "TEACHER", "ADMIN")
+                        .requestMatchers("/api/tests/**").hasAnyRole("TEACHER", "STUDENT")
 
+
+
+                        .requestMatchers("/api/interest/jd/**").hasAnyRole("STUDENT", "TEACHER", "ADMIN")
 
                         // Logout + /me require authentication
                         .requestMatchers("/api/auth/logout").authenticated()
                         .requestMatchers("/api/auth/me").authenticated()
 
-                        // Everything else is protected
+                        // Allow students to view tests
+                        .requestMatchers(HttpMethod.GET, "/api/test/all").hasAnyRole("STUDENT", "TEACHER", "ADMIN")
+
+                        // Protect everything else
                         .anyRequest().authenticated()
                 );
-
 
         http.authenticationProvider(authenticationProvider());
         http.addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);

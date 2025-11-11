@@ -2,8 +2,6 @@ package com.project.DriveDesk.Models;
 
 import jakarta.persistence.*;
 import lombok.*;
-import com.project.DriveDesk.Models.SessionStatus;
-
 import java.time.LocalDateTime;
 
 @Entity
@@ -29,7 +27,11 @@ public class TestSession {
     @Enumerated(EnumType.STRING)
     private SessionStatus status; // ACTIVE, TERMINATED, COMPLETED
 
+    // ✅ Proctoring enforcement
     private int tabSwitchCount;
     private int faceViolationCount;
-}
 
+    // ✅ New fields for termination logic
+    private String terminationReason; // e.g. "Multiple faces detected", "Tab switch detected"
+    private LocalDateTime terminatedAt; // Optional: when termination occurred
+}

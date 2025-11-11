@@ -23,6 +23,8 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.Map;
+
 @Service
 @RequiredArgsConstructor
 @Transactional
@@ -98,7 +100,11 @@ public class AuthService {
 
         return ResponseEntity.ok()
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + token)
-                .body(new ApiResponse(true, "✅ Teacher logged in successfully! Token: " + token));
+                .body(Map.of(
+                        "success", true,
+                        "message", "✅ Teacher logged in successfully!",
+                        "token", token
+                ));
     }
 
     // ✅ Student Login
@@ -120,7 +126,11 @@ public class AuthService {
 
         return ResponseEntity.ok()
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + token)
-                .body(new ApiResponse(true, "✅ Student logged in successfully! Token: " + token));
+                .body(Map.of(
+                        "success", true,
+                        "message", "✅ Student logged in successfully!",
+                        "token", token
+                ));
     }
 
     // ✅ Logout

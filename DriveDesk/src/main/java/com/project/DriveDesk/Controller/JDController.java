@@ -27,8 +27,12 @@ public class JDController {
 
     // 🔹 Get JDs posted by logged-in teacher
     @GetMapping("/teacher")
-    public ResponseEntity<List<JobDescriptionResponse>> getJDsByTeacher() {
-        return ResponseEntity.ok(jdService.getAllJDsByTeacher());
+    public ResponseEntity<Page<JobDescriptionResponse>> getAllJDsForTeacher(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+
+        Pageable pageable = PageRequest.of(page, size);
+        return ResponseEntity.ok(jdService.getAllJDs(pageable));
     }
 
     // 🔹 Update JD

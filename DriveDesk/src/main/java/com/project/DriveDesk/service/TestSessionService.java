@@ -41,16 +41,17 @@ public class TestSessionService {
 
         if (session.getStatus() != SessionStatus.ACTIVE) return;
 
-        if (isTabSwitch) session.setTabSwitchCount(session.getTabSwitchCount() + 1);
-        if (isFaceViolation) session.setFaceViolationCount(session.getFaceViolationCount() + 1);
-
-        if (session.getTabSwitchCount() >= 3 || session.getFaceViolationCount() >= 3) {
+        if (isTabSwitch || isFaceViolation) {
             session.setStatus(SessionStatus.TERMINATED);
             session.setEndedAt(LocalDateTime.now());
+
+            String reason = isTabSwitch ? "Tab switch detected" : "Multiple faces detected";
+            session.setTerminationReason(reason); // Add this field to your entity if not present
         }
 
         sessionRepository.save(session);
     }
+
 
     public void completeTest(String sessionToken) {
         TestSession session = sessionRepository.findBySessionToken(sessionToken)
