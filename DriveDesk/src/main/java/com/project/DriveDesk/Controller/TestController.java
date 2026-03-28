@@ -13,7 +13,7 @@ import java.util.Map;
 @RestController
 @RequestMapping("/api/tests")
 @RequiredArgsConstructor
-git
+
 public class TestController {
 
     private final TestService testService;
