@@ -1,17 +1,15 @@
 package com.project.DriveDesk.Models;
 
-import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 
 @Data
-@AllArgsConstructor
-@NoArgsConstructor
 public class CreateTestDTO {
     private String title;
-    private int numberOfQuestions;
-    private int duration; // in minutes
-    private int totalMarks;
+    private Integer mcqCount;
+    private Integer codingCount;
+    private Integer duration;       // minutes
+    private Integer totalMarks;
     private String instructions;
+    private Long createdByTeacherId;
+    private String scheduledAt; // ISO-8601 string, optional
 }
-

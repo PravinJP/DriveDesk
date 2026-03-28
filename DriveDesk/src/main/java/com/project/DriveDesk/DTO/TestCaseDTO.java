@@ -7,4 +7,3 @@ public class TestCaseDTO {
     private String input;
     private String expectedOutput;
 }
-

@@ -36,7 +36,7 @@ public class AuthController {
 //        }
 //    }
 
-    // ✅ Login (same idea as your ecommerce /signin)
+    //  Login (same idea as your ecommerce /signin)
     @PostMapping("/admin/login")
     public ResponseEntity<?> loginAdmin(@RequestBody AdminLoginRequest adminLoginRequest) {
         return authService.loginAdmin(adminLoginRequest);
@@ -57,13 +57,13 @@ public class AuthController {
     }
 
 
-    // ✅ Logout
+    //  Logout
     @PostMapping("/logout")
     public ResponseEntity<?> logoutUser() {
         return authService.logout();
     }
 
-    // ✅ Get current user info
+    //  Get current user info
     @GetMapping("/me")
     public ResponseEntity<UserResponse> getLoggedInUser(Authentication authentication) {
         return ResponseEntity.ok(new UserResponse(
@@ -78,10 +78,13 @@ public class AuthController {
     public ResponseEntity<?> getAllUsers(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
-
+        if (page < 0 || size < 1 || size > 100) {
+            return ResponseEntity.badRequest().body("Invalid page or size");
+        }
         Pageable pageable = PageRequest.of(page, size);
         return authService.getAllUsers(pageable);
     }
+
 
 
 

@@ -2,7 +2,6 @@ package com.project.DriveDesk.Models;
 
 import jakarta.persistence.*;
 import lombok.Data;
-
 import java.util.List;
 
 @Entity
@@ -12,6 +11,12 @@ public class Question {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Enumerated(EnumType.STRING)
+    private QuestionType questionType; // MCQ or CODING
+
+    private int marks;
+
+    // ── Coding fields ──────────────────────────────
     private String title;
     @Column(length = 5000)
     private String description;
@@ -20,9 +25,16 @@ public class Question {
     private String constraints;
     private String sampleInput;
     private String sampleOutput;
-    private int marks;
 
     @OneToMany(mappedBy = "question", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<HiddenTestCase> hiddenTestCases;
-}
 
+    // ── MCQ fields ─────────────────────────────────
+    @Column(length = 2000)
+    private String questionText;
+
+    @OneToMany(mappedBy = "question", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<McqOption> options;
+
+    private Integer correctOptionIndex; // 0-based, NOT sent to students
+}

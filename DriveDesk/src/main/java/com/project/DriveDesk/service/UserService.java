@@ -24,6 +24,7 @@ public class UserService {
     private final TeacherRepository teacherRepository;
     private final StudentRepository studentRepository;
     private final PasswordEncoder encoder;
+    private final ActivityService activityService;
 
     /**
      * ✅ Create Teacher (by Admin)
@@ -49,8 +50,8 @@ public class UserService {
         user.setTeacher(teacher);
 
         userRepository.save(user);
-        return ResponseEntity.ok(new ApiResponse(true, "✅ Teacher created successfully!"));
-    }
+        activityService.log("New teacher added", request.getUserName(), "teacher");
+        return ResponseEntity.ok().build();    }
 
     /**
      * ✅ Create Student (by Admin)
@@ -76,7 +77,8 @@ public class UserService {
         user.setStudent(student);
 
         userRepository.save(user);
-        return ResponseEntity.ok(new ApiResponse(true, "✅ Student created successfully!"));
+        activityService.log("New student added", request.getUserName(), "student");
+        return ResponseEntity.ok().build();
     }
 
     /**

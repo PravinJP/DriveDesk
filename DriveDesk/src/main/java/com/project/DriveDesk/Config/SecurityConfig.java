@@ -50,59 +50,71 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
-                .cors(cors -> cors.configure(http))
+                // ✅ FIXED CORS (IMPORTANT)
+                .cors(cors -> {})
+
+                // Disable CSRF for APIs
                 .csrf(csrf -> csrf.disable())
+
+                // Exception handling
                 .exceptionHandling(ex -> ex.authenticationEntryPoint(unauthorizedHandler))
+
+                // Stateless JWT session
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+
+                // Authorization rules
                 .authorizeHttpRequests(auth -> auth
+
                         // Allow error page
                         .requestMatchers("/error").permitAll()
 
-                        // Admin signup (first time only)
+                        // Admin signup
                         .requestMatchers("/api/auth/admin-signup").permitAll()
 
-                        // Public logins
+                        // Allow OPTIONS for CORS preflight
+                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+
+                        // Public login endpoints
                         .requestMatchers("/api/auth/admin/login").permitAll()
                         .requestMatchers("/api/auth/teacher/login").permitAll()
                         .requestMatchers("/api/auth/student/login").permitAll()
 
-                        // Only ADMIN can delete users
+                        // Admin-only endpoints
                         .requestMatchers("/api/users/**").hasRole("ADMIN")
-
-                        // Admin registers teachers/students
                         .requestMatchers("/api/auth/register").hasRole("ADMIN")
 
-                        // 🔹 JD endpoints
-                        // Teachers can manage their job alerts
+                        // JD endpoints
                         .requestMatchers("/api/jd/create").hasRole("TEACHER")
                         .requestMatchers("/api/jd/update/**").hasRole("TEACHER")
                         .requestMatchers("/api/jd/delete/**").hasRole("TEACHER")
                         .requestMatchers("/api/jd/teacher").hasRole("TEACHER")
 
-                        // Students can view job alerts (public/student dashboard)
-                        .requestMatchers(HttpMethod.GET, "/api/jd/student").hasAnyRole("STUDENT", "TEACHER", "ADMIN")
+                        .requestMatchers(HttpMethod.GET, "/api/jd/student")
+                        .hasAnyRole("STUDENT", "TEACHER", "ADMIN")
 
-                        // Questions API
+                        // Questions
                         .requestMatchers(HttpMethod.POST, "/api/questions").hasRole("TEACHER")
                         .requestMatchers(HttpMethod.GET, "/api/questions").permitAll()
 
-                        // Interest endpoints
+                        // Interest
                         .requestMatchers("/api/interest/register").hasRole("STUDENT")
                         .requestMatchers("/api/interest/student").hasRole("STUDENT")
-                        .requestMatchers("/api/tests/**").hasAnyRole("TEACHER", "STUDENT")
+                        .requestMatchers("/api/interest/jd/**")
+                        .hasAnyRole("STUDENT", "TEACHER", "ADMIN")
 
+                        // Tests
+                        .requestMatchers("/api/tests/**")
+                        .hasAnyRole("TEACHER", "STUDENT")
 
-
-                        .requestMatchers("/api/interest/jd/**").hasAnyRole("STUDENT", "TEACHER", "ADMIN")
-
-                        // Logout + /me require authentication
+                        // Authenticated endpoints
                         .requestMatchers("/api/auth/logout").authenticated()
                         .requestMatchers("/api/auth/me").authenticated()
 
-                        // Allow students to view tests
-                        .requestMatchers(HttpMethod.GET, "/api/test/all").hasAnyRole("STUDENT", "TEACHER", "ADMIN")
+                        // View tests
+                        .requestMatchers(HttpMethod.GET, "/api/test/all")
+                        .hasAnyRole("STUDENT", "TEACHER", "ADMIN")
 
-                        // Protect everything else
+                        // Everything else
                         .anyRequest().authenticated()
                 );
 

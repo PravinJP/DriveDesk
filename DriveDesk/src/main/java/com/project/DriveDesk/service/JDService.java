@@ -1,20 +1,22 @@
 package com.project.DriveDesk.service;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Service;
+
 import com.project.DriveDesk.DTO.JDRequest;
 import com.project.DriveDesk.DTO.JobDescriptionResponse;
 import com.project.DriveDesk.Models.JobDescription;
 import com.project.DriveDesk.Models.Teacher;
 import com.project.DriveDesk.Repository.JDRepository;
+import com.project.DriveDesk.Repository.StudentInterestRepository;
 import com.project.DriveDesk.Repository.TeacherRepository;
+
 import lombok.RequiredArgsConstructor;
-
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.stereotype.Service;
-
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -22,8 +24,9 @@ public class JDService {
 
     private final JDRepository jdRepository;
     private final TeacherRepository teacherRepository;
+    private final StudentInterestRepository studentInterestRepository;
 
-    // 🔹 Create JD and return DTO
+    //  Create JD and return DTO
     public JobDescriptionResponse createJD(JDRequest jdRequest) {
         String teacherUsername = SecurityContextHolder.getContext().getAuthentication().getName();
         Teacher teacher = teacherRepository.findByUser_Username(teacherUsername)
@@ -44,13 +47,13 @@ public class JDService {
         return mapToDto(savedJD);
     }
 
-    // 🔹 Get all JDs as DTOs
+    //  Get all JDs as DTOs
     public Page<JobDescriptionResponse> getAllJDs(Pageable pageable) {
         return jdRepository.findAll(pageable)
                 .map(this::mapToDto);
     }
 
-    // 🔹 Update JD and return DTO
+    //  Update JD and return DTO
     public JobDescriptionResponse updateJD(Long jdId, JDRequest request) {
         JobDescription jd = jdRepository.findById(jdId)
                 .orElseThrow(() -> new RuntimeException("JD not found"));
@@ -67,15 +70,20 @@ public class JDService {
         return mapToDto(updatedJD);
     }
 
-    // 🔹 Delete JD
+    //  Delete JD
     public void deleteJD(Long jdId) {
         if (!jdRepository.existsById(jdId)) {
             throw new RuntimeException("JD not found");
         }
+
+        //  Delete all student interest records for this JD first
+        studentInterestRepository.deleteByJobDescriptionId(jdId);
+
+        // Now delete the JD itself
         jdRepository.deleteById(jdId);
     }
 
-    // 🔹 Get JDs by logged-in teacher
+    //  Get JDs by logged-in teacher
     public List<JobDescriptionResponse> getAllJDsByTeacher() {
         String teacherUsername = SecurityContextHolder.getContext().getAuthentication().getName();
         Teacher teacher = teacherRepository.findByUser_Username(teacherUsername)
@@ -86,7 +94,7 @@ public class JDService {
                 .collect(Collectors.toList());
     }
 
-    // 🔹 DTO Mapper
+    //  DTO Mapper
     public JobDescriptionResponse mapToDto(JobDescription jd) {
         JobDescriptionResponse dto = new JobDescriptionResponse();
         dto.setId(jd.getId());

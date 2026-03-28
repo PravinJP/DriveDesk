@@ -1,19 +1,23 @@
 package com.project.DriveDesk.Controller;
 
+import com.project.DriveDesk.DTO.ActivityDto;
 import com.project.DriveDesk.DTO.StudentCreateRequest;
 import com.project.DriveDesk.DTO.TeacherCreateRequest;
 import com.project.DriveDesk.DTO.UpdatePassword;
+import com.project.DriveDesk.service.ActivityService;
 import com.project.DriveDesk.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/users")
-@RequiredArgsConstructor
 public class UserController {
 
     private final UserService userService;
+    private final ActivityService activityService;
 
     // -------------------- Create Teacher --------------------
     @PostMapping("/teacher")
@@ -54,5 +58,17 @@ public class UserController {
     ) {
         return userService.updateTeacherPassword(teacherId,request);
     }
+
+     // Inject ActivityService
+
+    public UserController(UserService userService, ActivityService activityService) {
+        this.userService = userService;
+        this.activityService = activityService;
+    }
+
+    // Other methods...
+
+
+
 
 }

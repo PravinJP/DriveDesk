@@ -37,10 +37,10 @@ public class AuthService {
     private final PasswordEncoder encoder;
     private final JwtUtils jwtUtil;
 
-    // ✅ Admin Signup
+    //  Admin Signup
     public ResponseEntity<?> registerAdmin(SignUpRequest signUpRequest) {
         if (userRepository.existsByRole(AppRole.ROLE_ADMIN)) {
-            return ResponseEntity.badRequest().body(new ApiResponse(false, "❌ Admin already exists!"));
+            return ResponseEntity.badRequest().body(new ApiResponse(false, " Admin already exists!"));
         }
 
         Users admin = Users.builder()
@@ -51,10 +51,10 @@ public class AuthService {
                 .build();
 
         userRepository.save(admin);
-        return ResponseEntity.ok(new ApiResponse(true, "✅ Admin registered successfully!"));
+        return ResponseEntity.ok(new ApiResponse(true, " Admin registered successfully!"));
     }
 
-    // ✅ Admin Login
+    //  Admin Login
     public ResponseEntity<?> loginAdmin(AdminLoginRequest loginRequest) {
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(

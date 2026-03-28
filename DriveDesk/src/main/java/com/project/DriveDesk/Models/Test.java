@@ -1,10 +1,10 @@
 package com.project.DriveDesk.Models;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-
+import lombok.*;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -16,13 +16,24 @@ public class Test {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(nullable = false)
     private String title;
-    private int numberOfQuestions;
-    private int duration; // in minutes
-    private int totalMarks;
+
+    private Integer numberOfQuestions;
+    private Integer mcqCount;
+    private Integer codingCount;
+    private Integer duration; // minutes
+    private Integer totalMarks;
     private String instructions;
 
-    @OneToMany(mappedBy = "test", cascade = CascadeType.ALL)
-    private List<TestQuestionMapping> questionMappings;
-}
+    @Enumerated(EnumType.STRING)
+    private TestStatus status = TestStatus.DRAFT;
 
+    private Long createdByTeacherId;
+    private LocalDateTime createdAt = LocalDateTime.now();
+    private LocalDateTime scheduledAt;
+
+    @JsonIgnore
+    @OneToMany(mappedBy = "test", cascade = CascadeType.ALL)
+    private List<TestQuestionMapping> questionMappings = new ArrayList<>();
+}
