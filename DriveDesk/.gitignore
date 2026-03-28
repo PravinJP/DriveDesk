@@ -32,6 +32,9 @@ build/
 ### VS Code ###
 .vscode/
 
-# Ignore Spring Boot sensitive configs
-src/main/resources/application.properties
+
+# Ignore all Spring Boot config files
 src/main/resources/application*.properties
+
+# But allow the main application.properties (with placeholders)
+!src/main/resources/application.properties
