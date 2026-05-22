@@ -13,4 +13,6 @@ public interface TeacherRepository extends JpaRepository<Teacher, Long> {
     Optional<Teacher> findByUser(Users user);
 
     Optional<Teacher> findByUser_Username(String username); // ✅ fixed
+
+
 }

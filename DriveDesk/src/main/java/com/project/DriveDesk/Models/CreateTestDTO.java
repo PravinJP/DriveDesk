@@ -10,6 +10,7 @@ public class CreateTestDTO {
     private Integer duration;       // minutes
     private Integer totalMarks;
     private String instructions;
-    private Long createdByTeacherId;
-    private String scheduledAt; // ISO-8601 string, optional
+
+    private String scheduledAt;
+    private Long createdByTeacherId;// ISO-8601 string, optional
 }

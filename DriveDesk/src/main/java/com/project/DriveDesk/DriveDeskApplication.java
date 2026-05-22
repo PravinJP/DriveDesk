@@ -41,3 +41,4 @@ public class DriveDeskApplication {
 		return new RestTemplate();
 	}
 }
+// mvn spring-boot:run "-Dspring-boot.run.profiles=dev"

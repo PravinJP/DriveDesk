@@ -18,55 +18,72 @@ public class TestController {
 
     private final TestService testService;
 
-    // ── Teacher: Step 1 – create metadata ──────────────────────────
     @PostMapping("/create-metadata")
     public ResponseEntity<Long> createTestMetadata(@RequestBody CreateTestDTO dto) {
         return ResponseEntity.ok(testService.createTestMetadata(dto));
     }
 
-    // ── Teacher: Step 2 – allocate questions & publish ─────────────
     @PostMapping("/allocate-questions")
     public ResponseEntity<String> allocateQuestions(@RequestBody QuestionAllocationDTO dto) {
         testService.allocateQuestionsToTest(dto);
-        return ResponseEntity.ok("Questions allocated and test published successfully");
+        return ResponseEntity.ok("Questions allocated successfully");
     }
 
-    // ── Teacher: list own tests ─────────────────────────────────────
     @GetMapping("/by-teacher/{teacherId}")
     public ResponseEntity<List<Test>> getTestsByTeacher(@PathVariable Long teacherId) {
         return ResponseEntity.ok(testService.getTestsByTeacher(teacherId));
     }
 
-    // ── Admin: list all tests ───────────────────────────────────────
     @GetMapping("/all")
     public ResponseEntity<List<Test>> getAllTests() {
         return ResponseEntity.ok(testService.getAllTests());
     }
 
-    // ── Student: get test + questions (no answers) ──────────────────
     @GetMapping("/{testId}/questions")
     public ResponseEntity<Map<String, Object>> getTestWithQuestions(@PathVariable Long testId) {
         return ResponseEntity.ok(testService.getTestWithQuestions(testId));
     }
 
-    // ── Student: start attempt ──────────────────────────────────────
+    // UPDATED: now checks if student already completed test before starting
     @PostMapping("/{testId}/start")
-    public ResponseEntity<Long> startAttempt(
+    public ResponseEntity<?> startAttempt(
             @PathVariable Long testId,
             @RequestParam Long studentId) {
-        return ResponseEntity.ok(testService.startAttempt(testId, studentId));
+        try {
+            Long attemptId = testService.startAttempt(testId, studentId);
+            return ResponseEntity.ok(attemptId);
+        } catch (IllegalStateException e) {
+            // Student already completed this test
+            return ResponseEntity.status(409).body(Map.of(
+                "error", "ALREADY_COMPLETED",
+                "message", e.getMessage()
+            ));
+        }
     }
 
-    // ── Student: submit test ────────────────────────────────────────
     @PostMapping("/submit")
     public ResponseEntity<Map<String, Object>> submitTest(@RequestBody SubmitTestDTO dto) {
         return ResponseEntity.ok(testService.submitTest(dto));
     }
 
-    // ── Proctoring: log violation in real-time ──────────────────────
     @PostMapping("/proctoring/violation")
     public ResponseEntity<Void> recordViolation(@RequestBody ProctoringViolationDTO dto) {
         testService.recordViolation(dto);
         return ResponseEntity.ok().build();
+    }
+
+    // NEW: check if student already completed a specific test
+    @GetMapping("/{testId}/student/{studentId}/status")
+    public ResponseEntity<Map<String, Object>> getStudentTestStatus(
+            @PathVariable Long testId,
+            @PathVariable Long studentId) {
+        Map<String, Object> status = testService.getStudentTestStatus(testId, studentId);
+        return ResponseEntity.ok(status);
+    }
+
+    // NEW: get all completed test IDs for a student (for dashboard badges)
+    @GetMapping("/completed-by-student/{studentId}")
+    public ResponseEntity<List<Long>> getCompletedTestIds(@PathVariable Long studentId) {
+        return ResponseEntity.ok(testService.getCompletedTestIds(studentId));
     }
 }
